@@ -5,7 +5,7 @@ frameworkVersion: '2'
 
 plugins:
   - serverless-plugin-typescript
-  # - serverless-offline
+  - serverless-offline
 
 provider:
   name: aws
@@ -15,9 +15,20 @@ functions:
   hello:
     handler: handler.hello
     events:
-      - http:
-          path: hello
-          method: get
+    - http:
+        path: hello
+        method: get
+  graphql:
+    handler: graphql.graphqlHandler
+    events:
+    - http:
+        path: graphql
+        method: post
+        cors: true
+    - http:
+        path: graphql
+        method: get
+        cors: true
 
 # you can overwrite defaults here
 #  stage: dev

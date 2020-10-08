@@ -75,6 +75,12 @@
               "LogGroupName": "/aws/lambda/awwwserverless-dev-hello"
             }
           },
+          "GraphqlLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/awwwserverless-dev-graphql"
+            }
+          },
           "IamRoleLambdaExecution": {
             "Type": "AWS::IAM::Role",
             "Properties": {
@@ -189,6 +195,12 @@
                               "HelloLogGroup",
                               "Arn"
                             ]
+                          },
+                          {
+                            "Fn::GetAtt": [
+                              "GraphqlLogGroup",
+                              "Arn"
+                            ]
                           }
                         ]
                       }
@@ -205,7 +217,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/awwwserverless/dev/1602189089078-2020-10-08T20:31:29.078Z/awwwserverless.zip"
+                "S3Key": "serverless/awwwserverless/dev/1602192746731-2020-10-08T21:32:26.731Z/awwwserverless.zip"
               },
               "FunctionName": "awwwserverless-dev-hello",
               "Handler": "s_hello.handler",
@@ -223,14 +235,49 @@
               "HelloLogGroup"
             ]
           },
-          "HelloLambdaVersionUw1tuXiiE1hap6lz41FL2EIRsaR8lCvvpas2sJ8uqtQ": {
+          "HelloLambdaVersiona62FKuZqECi3CUncA4SvU8lumheP3OLk4UpcNsYb6Y": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "HelloLambdaFunction"
               },
-              "CodeSha256": "AcEJVQdC4g8SYpZrWimLJK6N+FQkvdB61PSvTaLBEHg="
+              "CodeSha256": "embsb+6JftdZCL2jpVjxDFxtK4VkXL1C0iXlBzZUzyY="
+            }
+          },
+          "GraphqlLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/awwwserverless/dev/1602192746731-2020-10-08T21:32:26.731Z/awwwserverless.zip"
+              },
+              "FunctionName": "awwwserverless-dev-graphql",
+              "Handler": "s_graphql.handler",
+              "MemorySize": 1024,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "nodejs12.x",
+              "Timeout": 6
+            },
+            "DependsOn": [
+              "GraphqlLogGroup"
+            ]
+          },
+          "GraphqlLambdaVersionkuydbWvUw81FM596jEaEPku2ogbdyU6jXSlEgLrL8": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GraphqlLambdaFunction"
+              },
+              "CodeSha256": "embsb+6JftdZCL2jpVjxDFxtK4VkXL1C0iXlBzZUzyY="
             }
           },
           "ApiGatewayRestApi": {
@@ -255,6 +302,66 @@
                 ]
               },
               "PathPart": "hello",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceGraphql": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "graphql",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodGraphqlOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,POST'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin.matches(\".+\")) #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceGraphql"
+              },
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
@@ -303,7 +410,93 @@
               "MethodResponses": []
             }
           },
-          "ApiGatewayDeployment1602189079300": {
+          "ApiGatewayMethodGraphqlPost": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "POST",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceGraphql"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "GraphqlLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            }
+          },
+          "ApiGatewayMethodGraphqlGet": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "GET",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceGraphql"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "GraphqlLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            }
+          },
+          "ApiGatewayDeployment1602192733237": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -312,7 +505,10 @@
               "StageName": "dev"
             },
             "DependsOn": [
-              "ApiGatewayMethodHelloGet"
+              "ApiGatewayMethodGraphqlOptions",
+              "ApiGatewayMethodHelloGet",
+              "ApiGatewayMethodGraphqlPost",
+              "ApiGatewayMethodGraphqlGet"
             ]
           },
           "HelloLambdaPermissionApiGateway": {
@@ -321,6 +517,43 @@
               "FunctionName": {
                 "Fn::GetAtt": [
                   "HelloLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "GraphqlLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GraphqlLambdaFunction",
                   "Arn"
                 ]
               },
@@ -461,7 +694,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/awwwserverless/dev/1602189089078-2020-10-08T20:31:29.078Z/custom-resources.zip"
+                "S3Key": "serverless/awwwserverless/dev/1602192746731-2020-10-08T21:32:26.731Z/custom-resources.zip"
               },
               "FunctionName": "awwwserverless-dev-custom-resource-apigw-cw-role",
               "Handler": "apiGatewayCloudWatchRole/handler.handler",
@@ -486,6 +719,16 @@
               "FilterPattern": "?\"REPORT RequestId: \" ?\"SERVERLESS_ENTERPRISE\"",
               "LogGroupName": {
                 "Ref": "HelloLogGroup"
+              }
+            }
+          },
+          "CloudWatchLogsSubscriptionFilterGraphqlLogGroup": {
+            "Type": "AWS::Logs::SubscriptionFilter",
+            "Properties": {
+              "DestinationArn": "arn:aws:logs:us-east-1:802587217904:destination:0ZK2Pw52NXKG2j6XvS#MzD9288yDpdLwYMt6m#awwwserverless#dev",
+              "FilterPattern": "?\"REPORT RequestId: \" ?\"SERVERLESS_ENTERPRISE\"",
+              "LogGroupName": {
+                "Ref": "GraphqlLogGroup"
               }
             }
           },
@@ -517,7 +760,13 @@
           "HelloLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "HelloLambdaVersionUw1tuXiiE1hap6lz41FL2EIRsaR8lCvvpas2sJ8uqtQ"
+              "Ref": "HelloLambdaVersiona62FKuZqECi3CUncA4SvU8lumheP3OLk4UpcNsYb6Y"
+            }
+          },
+          "GraphqlLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GraphqlLambdaVersionkuydbWvUw81FM596jEaEPku2ogbdyU6jXSlEgLrL8"
             }
           },
           "ServiceEndpoint": {
@@ -620,7 +869,8 @@
       "vpc": {}
     },
     "plugins": [
-      "serverless-plugin-typescript"
+      "serverless-plugin-typescript",
+      "serverless-offline"
     ],
     "pluginsData": {},
     "functions": {
@@ -646,7 +896,76 @@
         "timeout": 6,
         "runtime": "nodejs12.x",
         "vpc": {},
-        "versionLogicalId": "HelloLambdaVersionUw1tuXiiE1hap6lz41FL2EIRsaR8lCvvpas2sJ8uqtQ"
+        "versionLogicalId": "HelloLambdaVersiona62FKuZqECi3CUncA4SvU8lumheP3OLk4UpcNsYb6Y"
+      },
+      "graphql": {
+        "handler": "s_graphql.handler",
+        "events": [
+          {
+            "http": {
+              "path": "graphql",
+              "method": "post",
+              "cors": {
+                "origins": [
+                  "*"
+                ],
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "POST"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          },
+          {
+            "http": {
+              "path": "graphql",
+              "method": "get",
+              "cors": {
+                "origins": [
+                  "*"
+                ],
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "GET"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "awwwserverless-dev-graphql",
+        "package": {
+          "exclude": [
+            "node_modules/serverless-plugin-typescript"
+          ],
+          "include": []
+        },
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs12.x",
+        "vpc": {},
+        "versionLogicalId": "GraphqlLambdaVersionkuydbWvUw81FM596jEaEPku2ogbdyU6jXSlEgLrL8"
       }
     },
     "configValidationMode": "warn",
@@ -677,7 +996,7 @@
     "artifact": "/home/edwardweymouth/code/work/neo4j/grand-serverless/.build/.serverless/awwwserverless.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/awwwserverless/dev/1602189089078-2020-10-08T20:31:29.078Z",
+    "artifactDirectoryName": "serverless/awwwserverless/dev/1602192746731-2020-10-08T21:32:26.731Z",
     "artifact": "awwwserverless.zip"
   }
 }
