@@ -205,7 +205,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/awwwserverless/dev/1602184257458-2020-10-08T19:10:57.458Z/awwwserverless.zip"
+                "S3Key": "serverless/awwwserverless/dev/1602189089078-2020-10-08T20:31:29.078Z/awwwserverless.zip"
               },
               "FunctionName": "awwwserverless-dev-hello",
               "Handler": "s_hello.handler",
@@ -223,14 +223,14 @@
               "HelloLogGroup"
             ]
           },
-          "HelloLambdaVersionok4kqzbwZiDrmNBZed9pOxSAQlYZPQkAv51EWjzk": {
+          "HelloLambdaVersionUw1tuXiiE1hap6lz41FL2EIRsaR8lCvvpas2sJ8uqtQ": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "HelloLambdaFunction"
               },
-              "CodeSha256": "1RNRzqIaUdA6AdaP/kf2rnL4myFZ1hfKBnfFUCpbzHE="
+              "CodeSha256": "AcEJVQdC4g8SYpZrWimLJK6N+FQkvdB61PSvTaLBEHg="
             }
           },
           "ApiGatewayRestApi": {
@@ -255,51 +255,6 @@
                 ]
               },
               "PathPart": "hello",
-              "RestApiId": {
-                "Ref": "ApiGatewayRestApi"
-              }
-            }
-          },
-          "ApiGatewayMethodHelloOptions": {
-            "Type": "AWS::ApiGateway::Method",
-            "Properties": {
-              "AuthorizationType": "NONE",
-              "HttpMethod": "OPTIONS",
-              "MethodResponses": [
-                {
-                  "StatusCode": "200",
-                  "ResponseParameters": {
-                    "method.response.header.Access-Control-Allow-Origin": true,
-                    "method.response.header.Access-Control-Allow-Headers": true,
-                    "method.response.header.Access-Control-Allow-Methods": true
-                  },
-                  "ResponseModels": {}
-                }
-              ],
-              "RequestParameters": {},
-              "Integration": {
-                "Type": "MOCK",
-                "RequestTemplates": {
-                  "application/json": "{statusCode:200}"
-                },
-                "ContentHandling": "CONVERT_TO_TEXT",
-                "IntegrationResponses": [
-                  {
-                    "StatusCode": "200",
-                    "ResponseParameters": {
-                      "method.response.header.Access-Control-Allow-Origin": "'*'",
-                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
-                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
-                    },
-                    "ResponseTemplates": {
-                      "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin.matches(\".+\")) #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
-                    }
-                  }
-                ]
-              },
-              "ResourceId": {
-                "Ref": "ApiGatewayResourceHello"
-              },
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
@@ -348,7 +303,7 @@
               "MethodResponses": []
             }
           },
-          "ApiGatewayDeployment1602184253199": {
+          "ApiGatewayDeployment1602189079300": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -357,7 +312,6 @@
               "StageName": "dev"
             },
             "DependsOn": [
-              "ApiGatewayMethodHelloOptions",
               "ApiGatewayMethodHelloGet"
             ]
           },
@@ -507,7 +461,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/awwwserverless/dev/1602184257458-2020-10-08T19:10:57.458Z/custom-resources.zip"
+                "S3Key": "serverless/awwwserverless/dev/1602189089078-2020-10-08T20:31:29.078Z/custom-resources.zip"
               },
               "FunctionName": "awwwserverless-dev-custom-resource-apigw-cw-role",
               "Handler": "apiGatewayCloudWatchRole/handler.handler",
@@ -563,7 +517,7 @@
           "HelloLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "HelloLambdaVersionok4kqzbwZiDrmNBZed9pOxSAQlYZPQkAv51EWjzk"
+              "Ref": "HelloLambdaVersionUw1tuXiiE1hap6lz41FL2EIRsaR8lCvvpas2sJ8uqtQ"
             }
           },
           "ServiceEndpoint": {
@@ -666,7 +620,7 @@
       "vpc": {}
     },
     "plugins": [
-      "serverless-offline"
+      "serverless-plugin-typescript"
     ],
     "pluginsData": {},
     "functions": {
@@ -677,36 +631,22 @@
             "http": {
               "path": "hello",
               "method": "get",
-              "cors": {
-                "origins": [
-                  "*"
-                ],
-                "origin": "*",
-                "methods": [
-                  "OPTIONS",
-                  "GET"
-                ],
-                "headers": [
-                  "Content-Type",
-                  "X-Amz-Date",
-                  "Authorization",
-                  "X-Api-Key",
-                  "X-Amz-Security-Token",
-                  "X-Amz-User-Agent"
-                ],
-                "allowCredentials": false
-              },
               "integration": "AWS_PROXY"
             }
           }
         ],
         "name": "awwwserverless-dev-hello",
-        "package": {},
+        "package": {
+          "exclude": [
+            "node_modules/serverless-plugin-typescript"
+          ],
+          "include": []
+        },
         "memory": 1024,
         "timeout": 6,
         "runtime": "nodejs12.x",
         "vpc": {},
-        "versionLogicalId": "HelloLambdaVersionok4kqzbwZiDrmNBZed9pOxSAQlYZPQkAv51EWjzk"
+        "versionLogicalId": "HelloLambdaVersionUw1tuXiiE1hap6lz41FL2EIRsaR8lCvvpas2sJ8uqtQ"
       }
     },
     "configValidationMode": "warn",
@@ -719,12 +659,12 @@
       "app": "awwserverless",
       "org": "ed42311",
       "frameworkVersion": "2",
+      "plugins": {
+        "$ref": "$[\"service\"][\"plugins\"]"
+      },
       "provider": {
         "name": "aws",
         "runtime": "nodejs12.x"
-      },
-      "plugins": {
-        "$ref": "$[\"service\"][\"plugins\"]"
       },
       "functions": {
         "$ref": "$[\"service\"][\"functions\"]"
@@ -734,10 +674,10 @@
     "isDashboardAppPreconfigured": true,
     "appUid": "MzD9288yDpdLwYMt6m",
     "orgUid": "0ZK2Pw52NXKG2j6XvS",
-    "artifact": "/home/edwardweymouth/code/work/neo4j/grand-serverless/.serverless/awwwserverless.zip"
+    "artifact": "/home/edwardweymouth/code/work/neo4j/grand-serverless/.build/.serverless/awwwserverless.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/awwwserverless/dev/1602184257458-2020-10-08T19:10:57.458Z",
+    "artifactDirectoryName": "serverless/awwwserverless/dev/1602189089078-2020-10-08T20:31:29.078Z",
     "artifact": "awwwserverless.zip"
   }
 }
