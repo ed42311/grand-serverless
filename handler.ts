@@ -1,12 +1,19 @@
-// modern module syntax
-export async function hello(event, context, callback) {
+// handler.ts
+import { APIGatewayEvent, Context, Handler, Callback } from 'aws-lambda'
+
+export const hello: Handler = (
+  event: APIGatewayEvent,
+  context: Context,
+  cb: Callback
+) => {
   const response = {
     statusCode: 200,
     body: JSON.stringify({
-      message: 'Go Serverless v1.0! Your function executed successfully!',
+      message:
+        'Go Serverless Webpack (Typescript) v1.0! Your function executed successfully!',
       input: event,
     }),
-  };
+  }
 
-  callback(null, response);
+  cb(null, response)
 }
