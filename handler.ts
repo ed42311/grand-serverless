@@ -3,7 +3,7 @@ import { APIGatewayEvent, Context, Handler, Callback } from 'aws-lambda'
 
 export const hello: Handler = (
   event: APIGatewayEvent,
-  context: Context,
+  _context: Context,
   cb: Callback
 ) => {
   const response = {

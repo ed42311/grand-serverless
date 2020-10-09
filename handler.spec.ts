@@ -1,7 +1,5 @@
 // handler.spec.ts
-// import * as mocha from 'mocha'
 import * as chai from 'chai'
-// import { APIGatewayEvent, Handler, Callback, Context } from 'aws-lambda'
 import { hello } from './handler'
 
 const expect = chai.expect
