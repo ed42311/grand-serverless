@@ -7,8 +7,9 @@ const { makeAugmentedSchema } = neo4jGraphqlJs
 
 // Provide resolver functions for your schema fields
 const typeDefs = `
-type Person {
+type Kitteh {
   name: String
+  cuteness: Int
 }
 `
 
